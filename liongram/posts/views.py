@@ -2,7 +2,7 @@ from django.http import HttpResponse, JsonResponse
 from django.shortcuts import get_object_or_404, redirect, render
 
 from django.views.generic import ListView
-from posts.forms import PostBaseForm
+from posts.forms import PostBaseForm, PostCreateForm
 
 from posts.models import Post
 
@@ -41,10 +41,17 @@ def post_create_view(request):
     
 def post_create_form_view(request):
     if request.method == 'GET':
-        form = PostBaseForm()
+        form = PostCreateForm()
         context = {'form': form}
-        return render(request, 'posts/post_form.html', context)
+        return render(request, 'posts/post_form2.html', context)
     else:
+        form = PostBaseForm(request.POST, request.FILES)
+        if form.is_valid():
+            Post.objects.create(
+                image=form.cleaned_data['image'],
+                content=form.cleaned_data['content'],
+                writer = request.user,
+            )
         return redirect('index')
 
 def post_update_view(request, id):
